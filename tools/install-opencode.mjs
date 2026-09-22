@@ -11,9 +11,10 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
-const defaultRepoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const modulePath = realpathSync(fileURLToPath(import.meta.url));
+const defaultRepoRoot = realpathSync(resolve(dirname(modulePath), ".."));
 
 export function resolveOpenCodeConfigDir(env = process.env, home = homedir()) {
   if (env.OPENCODE_CONFIG_DIR) return resolve(env.OPENCODE_CONFIG_DIR);
@@ -67,7 +68,7 @@ export function installOpenCode({
   configDir = resolveOpenCodeConfigDir(),
   dryRun = false,
 } = {}) {
-  const root = resolve(repoRoot);
+  const root = realpathSync(resolve(repoRoot));
   const config = resolve(configDir);
   const skillsSource = join(root, "plugins", "pstack", "skills");
   const agentSource = join(root, "runtimes", "opencode", "pstack.md");
@@ -122,8 +123,10 @@ function parseArgs(args) {
     if (arg === "--dry-run") {
       dryRun = true;
     } else if (arg === "--config-dir") {
-      configDir = args[++i];
-      if (!configDir) throw new Error("--config-dir requires a path");
+      const value = args[i + 1];
+      if (!value || value.startsWith("-")) throw new Error("--config-dir requires a path");
+      configDir = value;
+      i += 1;
     } else {
       throw new Error(`unknown argument: ${arg}`);
     }
@@ -143,7 +146,7 @@ function main() {
   console.log(`${result.dryRun ? "dry run for" : "OpenCode pstack installed in"}: ${result.configDir}`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && modulePath === realpathSync(process.argv[1])) {
   try {
     main();
   } catch (error) {

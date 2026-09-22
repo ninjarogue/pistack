@@ -33,7 +33,19 @@ describe("native skill entrypoints", () => {
     expect(guide).toContain("provider/model#variant");
     expect(guide).toContain("Do not infer the runtime from the model provider");
     expect(guide).toContain("do not acquire a fictitious `Agent`, `Task`, or `subagent_type` tool");
-    expect(guide).toContain("pi --offline --no-session --provider PROVIDER --model MODEL --thinking high --print @TASK_FILE");
+    expect(guide).toContain("pi --offline --no-session --provider PROVIDER --model MODEL --thinking THINKING --print @TASK_FILE");
+  });
+
+  test("separate native CLIs receive the validated parent model explicitly", () => {
+    const guide = text("plugins/pstack/skills/poteto-mode/references/runtimes.md");
+    expect(guide).toContain("omitting its model selection uses that process's persisted defaults, not the parent session model");
+    expect(guide).toContain("For every separately launched CLI");
+    expect(guide).toContain("both `PI_PROVIDER` and `PI_MODEL`");
+    expect(guide).toContain("Unknown parent identity blocks inheritance");
+    expect(guide).toContain("Never infer parent identity from default or persisted settings");
+    expect(guide).toContain("minimum-reasoning policy, including any prose overrides");
+    expect(guide).toContain("do not assume they are stored under literal `implementation model` or `implementation effort` keys");
+    expect(guide).not.toContain("`inherit-parent` and `auto` mean omission of a CLI model selection");
   });
 
   test("generated model sections label legacy defaults and link native policy", () => {

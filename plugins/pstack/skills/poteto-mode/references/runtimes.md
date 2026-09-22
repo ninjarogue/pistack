@@ -41,23 +41,25 @@ opencode models
 
 An empty inventory is blocking. An existing sheet is not evidence that an ID remains available. Stop and report the inventory problem rather than guessing.
 
-`inherit-parent` and `auto` mean omission of a CLI model selection. They are valid on a native runtime only when the inherited current model is known and appears in that runtime's inventory. If it is unknown, run `setup-pstack` and choose a listed ID. OpenCode model IDs use `provider/model`; where the installed OpenCode model list exposes a variant, a separately launched run accepts `opencode run --model provider/model#variant`. There is no `--variant` flag.
+`inherit-parent` and `auto` request the current parent provider and model. Native in-process delegation may inherit that identity when the runtime actually provides model inheritance. A separately launched `pi` or `opencode` CLI is a new process and session: omitting its model selection uses that process's persisted defaults, not the parent session model.
 
-Read `implementation model` and `implementation effort` before code-writing work. Every workflow, including delegated work, must respect those instructions. Do not switch the parent session automatically. OpenCode native task delegation uses the model configured for that agent and has no invented per-task model parameter.
+For every separately launched CLI, expand an alias to the known current parent identity, validate that identity against the fresh runtime inventory, and pass it explicitly. On Pi, both `PI_PROVIDER` and `PI_MODEL` must identify the parent; pass them with `--provider` and `--model`. On OpenCode, obtain the active provider/model from live runtime information and pass it with `--model`. Unknown parent identity blocks inheritance: run `setup-pstack` and select a listed ID instead. Never infer parent identity from default or persisted settings. OpenCode model IDs use `provider/model`; where the installed OpenCode model list exposes a variant, a separately launched run accepts `opencode run --model provider/model#variant`. There is no `--variant` flag.
+
+Before code-writing work, read the private sheet's implementation-model choice and minimum-reasoning policy, including any prose overrides; do not assume they are stored under literal `implementation model` or `implementation effort` keys. Every workflow, including delegated work, must respect that policy. Preserve the parent's requested reasoning level for a separate worker when it is known, raising it when necessary to meet the sheet's minimum; if a required reasoning setting cannot be established, do not silently downgrade it. Do not switch the parent session automatically. OpenCode native task delegation uses the model configured for that agent and has no invented per-task model parameter.
 
 ## Delegation
 
 Use a native delegation tool only when it is actually exposed. A separate worker CLI is a separate session, not a substitute for an in-process subagent. Give it the relevant pstack skill and guide paths, the private-sheet requirements, an explicit worktree, a bounded writable scope, and verification instructions.
 
-A Pi worker invocation has this shape after replacing every placeholder with a value validated from `pi --offline --list-models`:
+A Pi worker invocation has this shape after replacing every placeholder with an explicitly selected value and validating the provider/model with `pi --offline --list-models`:
 
 ```shell
-pi --offline --no-session --provider PROVIDER --model MODEL --thinking high --print @TASK_FILE
+pi --offline --no-session --provider PROVIDER --model MODEL --thinking THINKING --print @TASK_FILE
 ```
 
-The task file must explicitly name the worker's worktree and bounded scope and tell the worker which pstack instructions to read. Do not add an auto-approval flag. If the selected sheet value is a validated native alias, omit the provider/model selection so the known inherited configuration applies.
+The task file must explicitly name the worker's worktree and bounded scope and tell the worker which pstack instructions to read. Do not add an auto-approval flag. For `inherit-parent` or `auto`, use the validated `PI_PROVIDER` and `PI_MODEL` values rather than omitting these flags. Set `THINKING` from the requested parent reasoning and the sheet's minimum-reasoning policy, not from a hard-coded default.
 
-For OpenCode, do not invent a model argument for a native task. A separately launched `opencode run` is also a separate session and must receive the same relevant pstack instructions explicitly. If the installed runtime offers no safe way to meet a workflow's requested fan-out, say that native fan-out is unavailable and continue sequentially only when the workflow remains meaningful.
+For OpenCode, do not invent a model argument for a native in-process task. A separately launched `opencode run` is also a separate session: pass its validated model explicitly and include the same relevant pstack instructions. Preserve a known parent variant or other exposed reasoning selection when required by the sheet; do not invent an unlisted variant. If the installed runtime offers no safe way to meet a workflow's requested fan-out, say that native fan-out is unavailable and continue sequentially only when the workflow remains meaningful.
 
 ## Session history and legacy-only behavior
 
