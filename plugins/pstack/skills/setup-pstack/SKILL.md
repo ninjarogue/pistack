@@ -1,52 +1,46 @@
 ---
 name: setup-pstack
-description: Configure which models pstack uses per role. Detects available models and writes the current runtime's private sheet. Use for /setup-pstack, "configure pstack models", changing pstack's model choices, or changing the legacy SessionStart hook.
+description: Configure which models pstack uses per role in Pi. Detects available models and writes Pi's private sheet. Use for /setup-pstack, "configure pstack models", or changing pstack's model choices.
 ---
 
 <!-- pstack-runtime-bootstrap:start -->
-> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+> **Runtime bootstrap.** On Pi, before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its rules for tools, models, delegation, configuration, and session history take precedence over inherited Claude Code or Codex instructions below.
 <!-- pstack-runtime-bootstrap:end -->
 
 # Setup pstack
 
-## Pi and OpenCode
+## Pi
 
-This is the first branch. If the current runtime is Pi or OpenCode, follow this section and stop before [Legacy Claude Code and Codex](#legacy-claude-code-and-codex). Read the [native runtime guide](../poteto-mode/references/runtimes.md) first. Detect the host from its runtime, tools, and environment, never from the model provider.
+This is the supported branch. On Pi, follow this section and stop before [Inherited Claude Code and Codex](#inherited-claude-code-and-codex). Read the [Pi runtime guide](../poteto-mode/references/runtimes.md) first. Detect Pi from its runtime, tools, and environment, never from the model provider.
 
 ### 1. Inventory native models
 
-Run exactly the current runtime's inventory command:
+Run Pi's inventory command:
 
 ```shell
 pi --offline --list-models
-opencode models
 ```
 
-Use the Pi command on Pi and the OpenCode command on OpenCode. If the inventory is empty or the command fails, **STOP**. Say model discovery is blocked. An existing private sheet does not prove that its IDs are still available.
+If the inventory is empty or the command fails, **STOP**. Say model discovery is blocked. An existing private sheet does not prove that its IDs are still available.
 
 ### 2. Resolve and read the native sheet
 
-Resolve only the current runtime's path:
+Use `${PI_CODING_AGENT_DIR}/pstack-models.md` when `PI_CODING_AGENT_DIR` is set, otherwise `~/.pi/agent/pstack-models.md`.
 
-- Pi uses `${PI_CODING_AGENT_DIR}/pstack-models.md` when `PI_CODING_AGENT_DIR` is set, otherwise `~/.pi/agent/pstack-models.md`.
-- OpenCode uses `${OPENCODE_CONFIG_DIR}/pstack-models.md` when `OPENCODE_CONFIG_DIR` is set, otherwise `${XDG_CONFIG_HOME}/opencode/pstack-models.md` when `XDG_CONFIG_HOME` is set, otherwise `~/.config/opencode/pstack-models.md`.
-
-Read the existing sheet when present and preserve its valid choices. Do not read or edit the other runtime's sheet.
+Read the existing sheet when present and preserve its valid choices. Do not read or edit another runtime's configuration.
 
 ### 3. Validate and confirm
 
-Show each current role choice and the implementation model and effort. Every real model ID must occur in the fresh inventory. Offer only listed IDs plus `inherit-parent` and `auto`. A native alias is valid only when the current inherited model is known and is in that inventory; otherwise require a listed real ID. Ask the user to confirm the complete mapping before writing.
-
-OpenCode IDs use `provider/model` and, only when listed, `provider/model#variant`. Do not invent `--variant` or a model parameter for OpenCode native tasks. Pi provider and model values must also come from its list.
+Show each current role choice and the implementation model and effort. Every real Pi provider and model ID must occur in the fresh inventory. Offer only listed IDs plus `inherit-parent` and `auto`. An alias is valid only when the current inherited model is known and is in that inventory; otherwise require a listed real ID. Ask the user to confirm the complete mapping before writing.
 
 ### 4. Write the native sheet
 
-Overwrite only the resolved `pstack-models.md`. Keep existing valid user choices; use the generic alias defaults below only for a new sheet and only after validating the inherited model. Replace `pi-or-opencode` with the detected runtime. `implementation effort` is an instruction for all code-writing work, including worker sessions.
+Overwrite only the resolved `pstack-models.md`. Keep existing valid user choices; use the generic alias defaults below only for a new sheet and only after validating the inherited model. `implementation effort` is an instruction for all code-writing work, including worker sessions.
 
 ```markdown
 # pstack native model configuration
 
-runtime: pi-or-opencode
+runtime: pi
 implementation model: inherit-parent
 implementation effort: high
 feature, refactoring: inherit-parent
@@ -68,13 +62,13 @@ architect runners: inherit-parent
 interrogate reviewers: inherit-parent
 ```
 
-### 5. Confirm native scope
+### 5. Confirm Pi scope
 
-Report the path written, selected IDs, aliases, and effort. Do not edit `AGENTS.md`, `CLAUDE.md`, OpenCode `instructions`, `opencode.json`, auth files, or global hooks. The active pstack skill or OpenCode `pstack` agent reads the sheet directly. Ordinary sessions stay untouched.
+Report the path written, selected IDs, aliases, and effort. Do not edit `AGENTS.md`, `CLAUDE.md`, auth files, or global hooks. Active pstack skills read the sheet directly. Ordinary Pi sessions stay untouched.
 
-## Legacy Claude Code and Codex
+## Inherited Claude Code and Codex
 
-On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes. The steps below apply only to Claude Code and Codex. The SessionStart hook is legacy behavior and does not apply to Pi or OpenCode.
+The steps below are inherited from `pstack-claude` to keep upstream synchronization viable. This fork does not support or test these runtimes. On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes. The SessionStart hook does not apply to Pi.
 
 ### 1. Detect available models
 
@@ -88,9 +82,9 @@ Read the current runtime's sheet. Claude Code uses `~/.claude/pstack-models.md`;
 
 Show every role and mark unavailable real slugs. Ask whether to retain or change each role. Panel values remain comma-separated lists. Prefer the runtime's structured question tool when one exists.
 
-### 4. Choose the legacy session hook
+### 4. Choose the inherited session hook
 
-Ask whether the Claude Code or Codex SessionStart hook stays on. The default is on. This setting is inert on Pi and OpenCode.
+Ask whether the Claude Code or Codex SessionStart hook stays on. The default is on. This setting is inert on Pi.
 
 ### 5. Validate
 
@@ -126,17 +120,17 @@ interrogate reviewers: claude-opus-5, claude-fable-5-1, claude-sonnet-5
 session hook: on
 ```
 
-### 7. Wire in the legacy sheet
+### 7. Wire in the inherited sheet
 
 On Claude Code, include `@~/.claude/pstack-models.md` from the chosen `CLAUDE.md`. On Codex, paste only the model rows into the chosen `AGENTS.md`; the plugin reads the hook setting directly from `~/.codex/pstack-models.md`.
 
-### 8. Confirm legacy scope
+### 8. Confirm inherited scope
 
 Report the sheet path, loading mechanism, and hook setting.
 
 ## Models
 
-Claude-only defaults stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). They are not native defaults. Pi and OpenCode use the private runtime sheet described in the [native runtime rules](../poteto-mode/references/runtimes.md#model-policy).
+Claude-only defaults stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). They are not Pi defaults. Pi uses the private runtime sheet described in the [native runtime rules](../poteto-mode/references/runtimes.md#model-policy).
 
 - Available Claude models: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5`)
 - Default panel: `claude-opus-5`, `claude-fable-5-1`, `claude-sonnet-5`

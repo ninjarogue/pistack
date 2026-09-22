@@ -2,6 +2,14 @@
 
 This port applies the Cursor → Claude Code substitutions in skill bodies. Earlier drafts left them flagged; this revision resolves them. A later pass added a Codex build that shares the same skills; see [Codex port](#codex-port) below.
 
+## 0.9.37 - narrow pistack to Pi and redraw its route map
+
+This is a deliberate local fork. Preserve it during upstream sync.
+
+The README's workflow diagram was a dark HUD panel whose composition tracked upstream's marketing art, which is the wrong claim for a fork that owns its runtime story. `assets/pstack-overview.png` is gone; `assets/request-route.svg` replaces it as fork-owned art: a metro-style route map of one request through six stations (Your request, poteto-mode, Playbook, Plan and delegate, Review and verify, Validated work), carrying the playbook breadth (23, with `figure-it-out` as the fallback) instead of upstream's four-option list, and a footer naming the supporting skills (`how`, `why`, `unslop`) and the one runtime the stack is built for, Pi. OpenCode, Codex, and Claude Code compatibility is deliberately unclaimed: the build targets Pi now, and whether it still installs anywhere else is unverified. `assets/` is on the `upstream.json` exclude list, so neither the old PNG nor the new SVG is ever touched by a sync. Verified with an `rsvg-convert` render (labels fit, no collisions), `bun tools/generate.mjs`, and `bun test tests/`.
+
+Pi is now the fork's only supported, documented, tested, and installed runtime. The fork-authored OpenCode agent, installer, tests, runtime rules, and machine links were removed. The Pi extension's mode, prompt-section, model-sheet, session-resume, and skill-filtering behavior is unchanged. Claude Code and Codex artifacts remain only as unsupported inherited compatibility so future skill updates can still sync from `michael-denyer/pstack-claude`.
+
 ## 0.9.36 - Babysit confirms the first status read
 
 This is a deliberate local fork. Preserve it during upstream sync.

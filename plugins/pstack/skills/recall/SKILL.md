@@ -4,7 +4,7 @@ description: "Reconstruct your recent working context from your own chat history
 ---
 
 <!-- pstack-runtime-bootstrap:start -->
-> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+> **Runtime bootstrap.** On Pi, before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its rules for tools, models, delegation, configuration, and session history take precedence over inherited Claude Code or Codex instructions below.
 <!-- pstack-runtime-bootstrap:end -->
 
 # Recall

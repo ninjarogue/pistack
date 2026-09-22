@@ -1,46 +1,41 @@
-# Pi and OpenCode native support
+# Pi native support
+
+## Status
+
+Implemented. On 2026-09-23 the fork narrowed its maintained runtime scope to Pi. Fork-authored adapters for other native runtimes were removed. Claude Code and Codex artifacts remain only as unsupported inherited compatibility so the skill tree can continue syncing with `michael-denyer/pstack-claude`.
 
 ## Goal
 
-The fork owns runtime integration. Neither Pi nor OpenCode requires global instructions to load pstack model preferences. Existing model sheets remain private and runtime-specific. Normal sessions do not receive pstack's model configuration. Runtime integration does not silently change the parent model or bypass permissions.
+The fork owns a Pi integration that does not require global instructions to load pstack model preferences. Existing model sheets remain private. Normal Pi sessions do not receive pstack's model configuration. The integration does not silently change the parent model or bypass permissions.
 
 ## Grounding
 
 - Upstream revision: `2fe2002190bff9257d3e27f84ba6818f2cfd7e32`.
-- Upstream has 54 skills, a model-section generator, Claude/Codex plugin manifests, and 192 passing fixture tests.
-- The existing Pi mode integration is a separate user-owned extension. It discovers a hard-coded upstream skills path and persists `pstack-mode` metadata, but does not load model configuration.
+- Upstream has 54 skills, a model-section generator, and inherited Claude Code/Codex plugin artifacts.
 - Pi 0.87 supports package manifests, conditional skill discovery, persisted custom entries, and mutable per-turn system-prompt sections.
-- OpenCode 2.0.12 discovers skills on demand and accepts a configured skill directory. Its model and agent interfaces differ from Pi. Do not infer authenticated models from the user's existing override sheet.
+- Model availability comes from Pi's live inventory, never from a user's existing override sheet or the apparent provider.
 
 ## Alternatives
 
-1. Put a conditional loader in global AGENTS.md or OpenCode instructions. Rejected: the user explicitly wants the package to own this behavior.
-2. Ship separate copies of every skill for each runtime. Rejected: duplicated workflow content would drift.
-3. Ship one skill tree with a generated native-runtime entry instruction, a bundled Pi mode extension, and an OpenCode agent/install adapter. Selected: runtime-specific lifecycle stays at the boundary; workflow content remains shared.
+1. Put a conditional loader in global `AGENTS.md`. Rejected: the package must own its behavior without affecting ordinary sessions.
+2. Copy every skill into a Pi-specific tree. Rejected: duplicated workflow content would drift.
+3. Share one skill tree and keep runtime lifecycle at the package boundary. Selected: the Pi extension owns discovery, mode state, and prompt injection while workflow content remains shared.
+4. Maintain additional native-runtime adapters. Rejected: pistack supports, documents, tests, and installs Pi only.
 
 ## Shape
 
 - Root `package.json`: Pi package manifest; load the bundled extension, not all pstack skills globally.
-- `runtimes/pi/index.ts`: preserve current Default/Pstack session semantics and use a package-relative skills directory. In Pstack mode only, load the current model sheet into a named prompt section and instruct the agent to follow poteto-mode. Do not replace other prompt sections or change the parent model. Missing configuration must produce setup guidance, not Claude defaults.
-- `plugins/pstack/skills/poteto-mode/references/runtimes.md`: first-class Pi and OpenCode instructions, configuration paths, native tool names, model discovery, delegation limitations, and opt-in scope. Runtime-specific paths respect configuration-directory overrides.
-- Generator-owned skill entry blocks: all skills lead to the runtime guide. Direct invocation works without global instructions. Claude/Codex remain compatibility paths, not the instructions Pi follows.
-- `setup-pstack`: native Pi/OpenCode branch writes only the selected runtime's sheet. No AGENTS.md edits and no global OpenCode instructions include.
-- `runtimes/opencode`: an opt-in pstack agent and a repeatable installer that preserves unrelated configuration, loads the fork's skill tree, and never copies credentials or overwrites model choices.
-- Tests: existing suite plus generator invariants, installation idempotence and collision safety, and a real Pi CLI/local-provider test that inspects outgoing requests.
-
-## Work sequence
-
-- [x] Inspect upstream and installed runtimes; fork and clone; run baseline tests.
-- [x] Implement package-relative Pi mode and native skill/config entry points.
-- [x] Add OpenCode installation/agent support and verify discovery.
-- [x] Prove ordinary-session isolation, Pstack model loading, resume/reload, and configuration refresh.
-- [x] Review generated changes and documentation; run all tests.
-- [x] Push the fork; switch installed resources with backups; remove only the workaround block added in this session.
+- `runtimes/pi/index.ts`: preserve Default/Pstack session semantics and use a package-relative skills directory. In Pstack mode only, load the current model sheet into a named prompt section and instruct the agent to follow poteto-mode. Do not replace other prompt sections or change the parent model. Missing configuration produces setup guidance, not Claude defaults.
+- `plugins/pstack/skills/poteto-mode/references/runtimes.md`: Pi instructions, configuration paths, native tool names, model discovery, delegation limitations, and opt-in scope.
+- Generator-owned skill entry blocks: every skill points Pi to the runtime guide. Direct invocation works without global instructions.
+- `setup-pstack`: the supported branch writes only Pi's sheet. No `AGENTS.md` edits or global includes.
+- Tests: generator invariants plus a real Pi CLI/local-provider suite that inspects outgoing requests.
+- Inherited Claude Code and Codex files stay intact enough for upstream synchronization, but pistack makes no support claim for those runtimes.
 
 ## Verification gates
 
-A plain Pi turn must not include the pstack model sheet. A Pstack turn must include its current contents without any AGENTS.md pointer. Editing the sheet must affect the next Pstack turn, not unrelated sessions. Restart/resume must preserve mode. Every skill entry must direct Pi/OpenCode to native runtime configuration, including standalone setup and review skills. OpenCode must discover the fork's pstack skills and agent while its global instructions no longer include the model sheet. Existing runtime-specific model choices must remain intact. Claims about live model delegation require an actual run, not just a model-name table.
+A plain Pi turn must not include the pstack model sheet. A Pstack turn must include its current contents without an `AGENTS.md` pointer. Editing the sheet must affect the next Pstack turn, not unrelated sessions. Restart and resume must preserve mode. Every skill entry must direct Pi to its runtime configuration, including standalone setup and review skills. Existing Pi model choices must remain intact.
 
 ## Limits
 
-This phase does not invent an Agent tool on Pi, assume OpenCode task calls accept arbitrary models, or claim that prompt preferences enforce routing. Native delegation must use an installed model-capable tool or documented runtime CLI. Missing capabilities must be reported rather than bypassed.
+This integration does not invent an `Agent` tool on Pi or claim that prompt preferences enforce routing. Native delegation must use a model-capable tool exposed by Pi or a separately launched CLI with an explicit validated provider, model, reasoning level, worktree, and task contract. Missing capabilities are reported rather than bypassed.

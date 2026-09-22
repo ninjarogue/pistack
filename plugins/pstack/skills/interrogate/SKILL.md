@@ -4,7 +4,7 @@ description: "Use for \"interrogate\", \"adversarial review\", \"multi-model rev
 ---
 
 <!-- pstack-runtime-bootstrap:start -->
-> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+> **Runtime bootstrap.** On Pi, before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its rules for tools, models, delegation, configuration, and session history take precedence over inherited Claude Code or Codex instructions below.
 <!-- pstack-runtime-bootstrap:end -->
 
 # Interrogate
@@ -38,7 +38,7 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Use the current runtime's documented delegation only when exposed. Use the `interrogate reviewers` list from the runtime-selected private model sheet when present, one reviewer per entry, extending or shrinking the Reviewer A/B/C/D labels below to the configured entry count. On native runtimes, an absent role is unconfigured and the Claude-only table is not a fallback. On legacy runtimes, launch all reviewers in one message using the `Agent` tool and use the table defaults when no role is configured.
+On Pi, use documented delegation only when exposed. Use the `interrogate reviewers` list from Pi's private model sheet when present, one reviewer per entry, extending or shrinking the Reviewer A/B/C/D labels below to the configured entry count. An absent Pi role is unconfigured and the Claude-only table is not a fallback. On inherited Claude Code or Codex, launch all reviewers in one message using the `Agent` tool and use the table defaults when no role is configured.
 
 | Subagent | Default model |
 |----------|---------------|

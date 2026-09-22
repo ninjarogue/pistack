@@ -8,8 +8,8 @@
 //   VERSION  -> the "version" field in the three plugin manifests
 //   CHANGES.md must carry a heading for the current VERSION (release completeness)
 //   each skill's frontmatter (name + description) defines the shared Agent
-//   Skills boundary consumed natively by Codex, Prime, opencode, and Gemini CLI
-//     -> every SKILL.md gets the native-runtime bootstrap immediately after frontmatter
+//   Skills boundary consumed by Pi and the inherited Claude Code/Codex builds
+//     -> every SKILL.md gets the Pi-runtime bootstrap immediately after frontmatter
 //   docs/reference.md's "Slash commands" table (one row per public skill, in editorial
 //   order; the row text is the Codex slash-menu one-liner)
 //     -> its Codex prompt stub in plugins/pstack/.codex-plugin/prompts/
@@ -350,7 +350,7 @@ const blankPadded = (body) => ["", ...body.split("\n"), ""];
 // find it, and what it renders from the model policy. Adding a stamped region
 // means adding a row here; the stray-slug scan exempts exactly these spans.
 export const NATIVE_BOOTSTRAP = `<!-- pstack-runtime-bootstrap:start -->
-> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+> **Runtime bootstrap.** On Pi, before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its rules for tools, models, delegation, configuration, and session history take precedence over inherited Claude Code or Codex instructions below.
 <!-- pstack-runtime-bootstrap:end -->`;
 
 // Keep the bootstrap in one deterministic location. Markers let the generator
@@ -475,7 +475,7 @@ export function modelsSection(roles) {
   const bullets = roles.map((r) => `- ${r.role}: ${codeList(r.models)}`).join("\n");
   return (
     "Role defaults, stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). " +
-    "These are Claude-only defaults. Pi and OpenCode must use the runtime-selected private sheet and never fall back to these slugs; see the " +
+    "These are inherited Claude-only defaults. Pi must use its private sheet and never fall back to these slugs; see the " +
     "[native runtime rules](../poteto-mode/references/runtimes.md#model-policy). A matching role line in " +
     "`~/.claude/pstack-models.md` overrides each on Claude Code; see `/setup-pstack`.\n\n" +
     bullets
@@ -486,7 +486,7 @@ export function setupModelsSection(models) {
   const avail = models.available.map((m) => `${m.label} (${code(m.slug)})`).join(", ");
   return (
     "Claude-only defaults stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). " +
-    "They are not native defaults. Pi and OpenCode use the private runtime sheet described in the " +
+    "They are not Pi defaults. Pi uses the private runtime sheet described in the " +
     "[native runtime rules](../poteto-mode/references/runtimes.md#model-policy).\n\n" +
     `- Available Claude models: ${avail}\n` +
     `- Default panel: ${codeList(models.panel)}\n` +
@@ -501,7 +501,7 @@ export function nativeOverrideSheetBlock(models) {
   const rows = models.roles.map((r) => `${r.role}: inherit-parent`).join("\n");
   return (
     "# pstack native model configuration\n\n" +
-    "runtime: pi-or-opencode\n" +
+    "runtime: pi\n" +
     "implementation model: inherit-parent\n" +
     "implementation effort: high\n" +
     rows

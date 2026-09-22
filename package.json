@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Bundled native runtime integrations for pstack.",
+  "description": "Native Pi runtime for pstack.",
   "keywords": [
     "pi-package"
   ],

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,5 +20,11 @@ describe("bundled Pi package manifest", () => {
   test("keeps live Pi verification explicit", () => {
     expect(manifest.scripts.test).toBe("bun test tests/");
     expect(manifest.scripts["test:pi"]).toContain("tests/pi/verify.ts");
+  });
+
+  test("ships no fork-authored OpenCode adapter", () => {
+    expect(manifest.description).toBe("Native Pi runtime for pstack.");
+    expect(existsSync(join(root, "runtimes", "opencode"))).toBe(false);
+    expect(existsSync(join(root, "tools", "install-opencode.mjs"))).toBe(false);
   });
 });

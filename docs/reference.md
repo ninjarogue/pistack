@@ -44,19 +44,17 @@ Find each skill's instructions in the [skills tree](../plugins/pstack/skills/).
 
 ## Runtime support
 
-All runtimes share [one skills tree](../plugins/pstack/skills/). A skills-only installation includes the skills, scripts, agent references, and license notices. The Claude Code and Codex plugins also install automatic routing hooks. Codex command shortcuts are separate.
+Pi is the only runtime supported, documented, tested, and installed by pistack. Its [bundled extension](../runtimes/pi/index.ts) owns mode state, skill discovery, and private model-sheet loading without changing ordinary Pi sessions.
 
-| Runtime | Setup and recorded verification |
+| Runtime | Status |
 | --- | --- |
-| Claude Code | Install the marketplace plugin. Skills use Claude tool names and model defaults; the plugin installs automatic routing. |
-| Codex | Install the native plugin through the repository's marketplace and trust its hook through `/hooks`. The [Codex mapping](../plugins/pstack/skills/poteto-mode/references/codex-tools.md) translates Claude tools and model names. Shared skill symlinks were also detected in a live session. |
-| Prime Agent | Its documentation describes shared-directory discovery; it has not been tested in a live session. Choose tools and models through Prime's configuration. |
-| opencode | Discovery and reading a linked skill were verified on version 1.18.25. Configure agents, commands, and permissions in `opencode.json`. Its picker also lists principle skills. |
-| Gemini CLI | Its documentation describes shared-directory discovery; it has not been tested in a live session. Use `/skills list` to check discovery and `/skills reload` after changes. |
+| Pi | Supported. Install pistack through Pi and use `pi --pstack` or `/pstack`. |
+| Claude Code | Unsupported inherited compatibility. Use `michael-denyer/pstack-claude` directly. |
+| Codex | Unsupported inherited compatibility. Use `michael-denyer/pstack-claude` directly. |
 
-These checks cover skill discovery. Delegation and multi-model workflows remain unverified on Prime Agent, opencode, and Gemini CLI. On those runtimes, agents must adapt Claude-specific tools, models, and configuration. The Codex mapping applies only to Codex.
+The inherited Claude Code and Codex manifests, hooks, prompts, agents, and mappings remain in this repository only to keep upstream synchronization viable. Their presence is not a pistack support claim.
 
-### Automatic routing
+### Inherited automatic routing
 
 The Claude Code and Codex plugins share a [SessionStart hook](../plugins/pstack/hooks/hooks.json) that loads a short [routing instruction](../plugins/pstack/hooks/session-start-context.md) on startup, resume, clear, and compact. Codex requires the user to trust plugin hooks through `/hooks`. The instruction invokes `poteto-mode` when a task meets any of these conditions:
 
@@ -68,11 +66,11 @@ Smaller tasks proceed directly. The full skill loads when invoked, and explicit 
 
 To disable routing, run `setup-pstack` and turn off the session hook. In Claude Code, use `/pstack:setup-pstack`. You can also write `session hook: off` in the runtime's sheet: `~/.claude/pstack-models.md` for Claude Code or `~/.codex/pstack-models.md` for Codex. The hook reads that setting before injecting its instruction. Without the setting, routing stays on.
 
-Skills-only installs and other runtimes do not include the hook. Request `poteto-mode` explicitly, or add a standing instruction to the runtime's instruction file.
+The Pi package does not use this hook. Pi mode routing is owned by the bundled extension.
 
-### Shared skills installation
+### Inherited skills-only Codex installation
 
-Use this path for Prime Agent, opencode, Gemini CLI, or a skills-only Codex installation. Clone the repository and link its skills into `~/.agents/skills/`:
+This unsupported path is retained from upstream for synchronization. Clone the upstream repository and link its skills into `~/.agents/skills/`:
 
 ```shell
 git clone https://github.com/michael-denyer/pstack-claude
@@ -106,9 +104,9 @@ The [CI installation check](../.github/workflows/ci.yml) uses the skills CLI to 
 
 The [native plugin manifest](../plugins/pstack/.codex-plugin/plugin.json) points to the shared skills directory and [SessionStart hook](../plugins/pstack/hooks/hooks.json). The [marketplace catalog](../.agents/plugins/marketplace.json) lists `pstack` in the `pstack-claude` marketplace. Review and trust the hook through `/hooks`; Codex asks again when its definition changes.
 
-The [README installation](../README.md#codex) registers that catalog with `codex plugin marketplace add`, then installs the plugin with `codex plugin add`. These commands match the help output from `codex-cli 0.154.0-alpha.6.2`. A fresh native installation was not tested for this documentation change.
+The [upstream README](https://github.com/michael-denyer/pstack-claude#codex) documents its Codex installation. The inherited commands matched the help output from `codex-cli 0.154.0-alpha.6.2`; pistack does not verify them.
 
-OpenAI documents [marketplace registration and the plugin format](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli). If your CLI lacks `plugin add`, use the plugin browser after registering the marketplace, or use the [skills-only installation](#shared-skills-installation).
+OpenAI documents [marketplace registration and the plugin format](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli). If your CLI lacks `plugin add`, use the plugin browser after registering the marketplace, or use the [inherited skills-only installation](#inherited-skills-only-codex-installation).
 
 Request `poteto-mode` by name or select its entry, such as `pstack:poteto-mode`. To enable parallel subagents:
 
@@ -133,9 +131,9 @@ Each shortcut invokes its skill. The commands skip existing files and links. Rem
 
 ## Configuration and dependencies
 
-Invoke [setup-pstack](../plugins/pstack/skills/setup-pstack/SKILL.md) to choose models for each role. It detects available models, confirms the choices, and writes an override sheet. Its [runtime table](../plugins/pstack/skills/setup-pstack/SKILL.md#other-runtimes) names the sheet path and loading mechanism for each runtime. Defaults live in [models.json](../plugins/pstack/models.json).
+Invoke [setup-pstack](../plugins/pstack/skills/setup-pstack/SKILL.md#pi) to choose Pi models for each role. It detects available models, confirms the choices, and writes Pi's private sheet. Inherited Claude defaults live in [models.json](../plugins/pstack/models.json) and never serve as Pi fallbacks.
 
-For design comparisons and reviews, choose distinct models available to your runtime. The default panel uses different Claude models.
+For design comparisons and reviews, choose distinct models from Pi's current inventory. The generated default panel names inherited Claude models and does not apply to Pi.
 
 Install dependencies for the workflows you use:
 
@@ -198,7 +196,7 @@ CI also checks shell scripts, workflows, Markdown, relative links, and the bundl
 
 The skill tree is synced against upstream `e8d856f`.
 
-This repository ports Lauren Tan's pstack from Cursor to Claude Code and shares the skills with other runtimes. It includes seven cursor-team-kit skills and an independently authored `babysit` skill. The port supplies Claude Code plugin registration and routing, Codex manifests and shortcuts, and the Codex tool mapping.
+This repository runs Lauren Tan's pstack natively in Pi. It includes seven cursor-team-kit skills and an independently authored `babysit` skill. Claude Code plugin registration and routing, Codex manifests and shortcuts, and the Codex tool mapping are inherited from `michael-denyer/pstack-claude` and retained only for upstream synchronization.
 
 Cursor-specific automations, sticky-mode metadata, the Grok Bot UI workflow, and the Cursor UI tutorial are excluded. [tools/upstream.json](../tools/upstream.json) records the revisions and exclusions; [CHANGES.md](../CHANGES.md) records the per-skill port changes. The bundled `thermo-nuclear-code-quality-review` provides a maintainability review when a workflow calls for one.
 

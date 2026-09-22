@@ -4,7 +4,7 @@ description: "Fan out N parallel workers, drain them, and return one report. Use
 ---
 
 <!-- pstack-runtime-bootstrap:start -->
-> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+> **Runtime bootstrap.** On Pi, before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its rules for tools, models, delegation, configuration, and session history take precedence over inherited Claude Code or Codex instructions below.
 <!-- pstack-runtime-bootstrap:end -->
 
 # Swarm
@@ -27,12 +27,12 @@ Open a todolist with one entry per phase before launching anything.
 1. State the done predicate and the artifact or report the swarm must return.
 2. Choose the shape. Partition into slices, race N workers on identical briefs, or mix both. For a race or mixed shape, declare `first pass`, `rank all`, or `best-of` before spawning.
 3. Set N from the user or derive it from the shape. N is total workers, not the number that run at once.
-4. Pick the worker model from `swarm workers` in the runtime-selected private model sheet when present. On native runtimes, an absent role is unconfigured and the Claude-only [Models](#models) are not a fallback. On legacy runtimes, use that default. For a model race, name each arm's model up front.
+4. Pick the worker model from `swarm workers` in the runtime-selected private model sheet when present. On Pi, an absent role is unconfigured and the Claude-only [Models](#models) are not a fallback. On inherited Claude Code or Codex, use that default. For a model race, name each arm's model up front.
 5. Give each worker its own writable output when it writes.
 
 ## Phase B: Fan out
 
-Spawn all N workers using the current runtime's documented delegation, when exposed, and the configured model. The legacy Claude form is one message with `subagent_type: "general-purpose"` and `run_in_background: true`. Workers run on this machine, so isolation comes from the worktree or output directory assigned in Phase A, not from a remote environment. If native delegation is absent, follow the runtime guide's limitation policy instead of inventing these fields.
+Spawn all N workers using Pi's documented delegation, when exposed, and the configured model. The inherited Claude form is one message with `subagent_type: "general-purpose"` and `run_in_background: true`. Workers run on this machine, so isolation comes from the worktree or output directory assigned in Phase A, not from a remote environment. If Pi delegation is absent, follow the runtime guide's limitation policy instead of inventing these fields.
 
 When a worker must start from a non-default branch, check that branch out in the worker's own worktree and name the worktree path in its brief.
 
@@ -52,6 +52,6 @@ Return one consolidated in-chat report with the table, issue one-liners, gaps or
 
 ## Models
 
-Role defaults, stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). These are Claude-only defaults. Pi and OpenCode must use the runtime-selected private sheet and never fall back to these slugs; see the [native runtime rules](../poteto-mode/references/runtimes.md#model-policy). A matching role line in `~/.claude/pstack-models.md` overrides each on Claude Code; see `/setup-pstack`.
+Role defaults, stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). These are inherited Claude-only defaults. Pi must use its private sheet and never fall back to these slugs; see the [native runtime rules](../poteto-mode/references/runtimes.md#model-policy). A matching role line in `~/.claude/pstack-models.md` overrides each on Claude Code; see `/setup-pstack`.
 
 - swarm workers: `claude-opus-5`

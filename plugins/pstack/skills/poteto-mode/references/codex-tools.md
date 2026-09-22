@@ -1,6 +1,6 @@
 # Codex tool mapping for pstack
 
-pstack skills are written in Claude Code tool language (the `Skill` tool, the `Agent` tool, `AskUserQuestion`, `claude-*` model slugs). On Codex the skills are the same files; only the tool names resolve differently. Read this when a pstack skill names a Claude tool, a driver or bundled skill, or a `claude-*` model. This file is Codex-specific. Gemini CLI, opencode, Prime Agent, and other runtimes must use their own concrete tools, model names, and configuration paths.
+pstack skills are written in Claude Code tool language (the `Skill` tool, the `Agent` tool, `AskUserQuestion`, `claude-*` model slugs). On Codex the skills are the same files; only the tool names resolve differently. Read this when a pstack skill names a Claude tool, a driver or bundled skill, or a `claude-*` model. This file is specific to the inherited Codex compatibility artifacts. Pi follows `runtimes.md` and uses only its concrete tools, model names, and configuration paths.
 
 ## Tool actions
 
@@ -73,7 +73,7 @@ Affected skill entry points and the optional Codex slash stubs point here. Most 
 | Skill | On Codex |
 |-------|----------|
 | `interrogate` | The `subagent_type`/`model`/`readonly` dispatch fields map to `spawn_agent`; substitute your configured Codex models and keep the reviewer panel model-diverse. |
-| `setup-pstack` | The skill's Other runtimes table names the Codex sheet path and how it loads; the slugs are your Codex models (see Model names above). The role rows are identical. |
+| `setup-pstack` | The skill's inherited Codex branch names the sheet path and how it loads; the slugs are your Codex models (see Model names above). The role rows are identical. |
 | `no-comments` | There is no `comment-sicko` subagent type; see Subagent policy above. |
 | `teach` | Running `how` and `why` in parallel maps to `spawn_agent` fan-out; image generation uses the configured Codex equivalent. |
 | `create-verification-skill` | The generated skill lands under `.claude/skills/verify/` on Claude Code; write it to Codex's project-skill location instead. The app-driving harness is platform-neutral. |
