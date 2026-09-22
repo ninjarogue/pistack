@@ -1,6 +1,3 @@
-// Adapted for this fork from the upstream pstack workflow port:
-// https://github.com/michael-denyer/pstack-claude
-
 import { existsSync, realpathSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
