@@ -9,7 +9,7 @@ Tell `poteto-mode` your goal and it selects the workflow for the task.
 Install this fork:
 
 ```shell
-pi install git:github.com/ninjarogue/pstack-claude
+pi install git:github.com/ninjarogue/pistack
 ```
 
 Start a new pstack session:
@@ -25,8 +25,8 @@ Inside Pi, use `/pstack`. Ordinary Pi sessions are unchanged. The bundled extens
 Clone the fork, then install links into your OpenCode config directory:
 
 ```shell
-git clone https://github.com/ninjarogue/pstack-claude.git
-cd pstack-claude
+git clone https://github.com/ninjarogue/pistack.git
+cd pistack
 node tools/install-opencode.mjs
 ```
 
