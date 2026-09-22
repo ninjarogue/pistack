@@ -12,7 +12,7 @@ Install this fork:
 pi install git:github.com/ninjarogue/pstack-claude
 ```
 
-Start with the bundled extension or invoke the skill directly:
+Start a new pstack session:
 
 ```shell
 pi --pstack
@@ -22,7 +22,7 @@ Inside Pi, use `/pstack`. Ordinary Pi sessions are unchanged. The bundled extens
 
 ## OpenCode
 
-Clone the fork, then install links into an isolated OpenCode config directory:
+Clone the fork, then install links into your OpenCode config directory:
 
 ```shell
 git clone https://github.com/ninjarogue/pstack-claude.git

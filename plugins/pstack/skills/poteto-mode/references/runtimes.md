@@ -20,13 +20,13 @@ Use only tools present in the current session.
 
 | Workflow action | Pi | OpenCode |
 | --- | --- | --- |
-| Read or search files | `read`, plus `bash` for bounded searches | `read` and `bash` only when exposed |
-| Run commands | `bash` | `bash` only when exposed |
+| Read or search files | `read`, plus `bash` for bounded searches | `read`, `grep`, and `glob` when exposed |
+| Run commands | `bash` | V2 `shell`, or V1 `bash`, when exposed |
 | Load another skill | Follow the installed skill entrypoint | native `skill` tool only when exposed |
 | Ask a preference question | Ask in the conversation | `question` only when exposed, otherwise ask in the conversation |
 | Track work | Available session planning UI or a local checklist | `todo` only when exposed, otherwise a local checklist |
 
-OpenCode's native tool set may vary by agent and permission configuration. Pi and OpenCode do not acquire a fictitious `Agent`, `Task`, or `subagent_type` tool because legacy prose names one. If a required native tool, built-in skill, app driver, or delegation facility is absent, use a documented equivalent that is actually exposed, perform a safe sequential pass, or report the limitation. Do not guess a command.
+OpenCode's native tool set varies by version, agent, and permissions. V2 provides `subagent` for configured child agents; V1 may expose `task`. Use the tool's actual schema and an existing agent ID, not a Claude namespaced agent. V2 can run a child in the background with `background: true` and continue it with its returned `sessionID`. See the [V2 tools documentation](https://v2.opencode.ai/docs/tools) and [agent model rules](https://v2.opencode.ai/docs/agents). Pi and OpenCode do not acquire a fictitious `Agent`, `Task`, or `subagent_type` tool because legacy prose names one. If a required native tool, built-in skill, app driver, or delegation facility is absent, use a documented equivalent that is actually exposed, perform a safe sequential pass, or report the limitation. Do not guess a command.
 
 ## Model policy
 
@@ -39,13 +39,13 @@ pi --offline --list-models
 opencode models
 ```
 
-An empty inventory is blocking. An existing sheet is not evidence that an ID remains available. Stop and report the inventory problem rather than guessing.
+Run discovery from the active project directory. OpenCode V2 discovery may still be loading immediately after startup or reload; wait briefly and retry before treating an empty response as final. A persistently empty inventory is blocking. An existing sheet is not evidence that an ID remains available. Report the inventory problem rather than guessing.
 
 `inherit-parent` and `auto` request the current parent provider and model. Native in-process delegation may inherit that identity when the runtime actually provides model inheritance. A separately launched `pi` or `opencode` CLI is a new process and session: omitting its model selection uses that process's persisted defaults, not the parent session model.
 
 For every separately launched CLI, expand an alias to the known current parent identity, validate that identity against the fresh runtime inventory, and pass it explicitly. On Pi, both `PI_PROVIDER` and `PI_MODEL` must identify the parent; pass them with `--provider` and `--model`. On OpenCode, obtain the active provider/model from live runtime information and pass it with `--model`. Unknown parent identity blocks inheritance: run `setup-pstack` and select a listed ID instead. Never infer parent identity from default or persisted settings. OpenCode model IDs use `provider/model`; where the installed OpenCode model list exposes a variant, a separately launched run accepts `opencode run --model provider/model#variant`. There is no `--variant` flag.
 
-Before code-writing work, read the private sheet's implementation-model choice and minimum-reasoning policy, including any prose overrides; do not assume they are stored under literal `implementation model` or `implementation effort` keys. Every workflow, including delegated work, must respect that policy. Preserve the parent's requested reasoning level for a separate worker when it is known, raising it when necessary to meet the sheet's minimum; if a required reasoning setting cannot be established, do not silently downgrade it. Do not switch the parent session automatically. OpenCode native task delegation uses the model configured for that agent and has no invented per-task model parameter.
+Before code-writing work, read the private sheet's implementation-model choice and minimum-reasoning policy, including any prose overrides; do not assume they are stored under literal `implementation model` or `implementation effort` keys. Every workflow, including delegated work, must respect that policy. Preserve the parent's requested reasoning level for a separate worker when it is known, raising it when necessary to meet the sheet's minimum; if a required reasoning setting cannot be established, do not silently downgrade it. Do not switch the parent session automatically. OpenCode native delegation uses the model configured for that agent, or native parent inheritance when no agent model is set. Do not invent a per-call model parameter.
 
 ## Delegation
 

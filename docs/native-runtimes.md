@@ -41,7 +41,9 @@ opencode debug agents
 opencode debug config
 ```
 
-Those debug commands do not accept `--standalone`. Installer fixture tests verify the links and template, not live provider availability or delegation. `opencode api --standalone GET /api/agent` returning empty data is not a useful discovery check in the currently tested OpenCode 2 release. An empty model list is an environment issue rather than installer success evidence.
+Run those commands from the active project directory. After startup or `opencode reload`, allow discovery to finish before checking; an immediate response can omit custom agents and models. Those debug commands do not accept `--standalone`.
+
+Verified on OpenCode 2.0.12: the installed Markdown agent appears as `pstack` with mode `primary` and loads its prompt from the fork, without an `agents` JSON declaration. Skills resolve through the installed links without a `skills` configuration entry. Model inventory also resolves from the project directory. Installer fixture tests cover links, collisions, symlinked checkouts, dry runs, and repeated installation. Live OpenCode model delegation is not yet verified.
 
 ## Upgrade
 
@@ -68,8 +70,21 @@ First inspect each path and remove it only if it is a symlink to this clone. The
 
 Removal does not require changing `opencode.json`, auth, model sheets, `AGENTS.md`, or global instructions because the installer never modifies them.
 
+## Verify the fork
+
+From the repository root:
+
+```shell
+bun test tests/
+npm run test:pi
+bun tools/generate.mjs
+git diff --exit-code
+```
+
+The Pi integration suite requires Pi 0.87 and Node.js 24 on `PATH`. It uses isolated temporary configuration and a local test provider, not paid model calls. It checks ordinary-session isolation, Pstack-only model configuration, config refresh, saved modes, and missing or invalid sheets. Run generation from a clean checkout when checking for drift.
+
 ## Native limitations
 
-Use only native tools exposed in the active session. OpenCode may expose `skill`, `read`, `bash`, `question`, and `todo`; none is assumed when absent. Neither runtime gains Claude's `Agent` or `subagent_type` interface from these files. A worker CLI is a separate session and must receive the relevant pstack instructions, worktree, bounded scope, and verification contract explicitly.
+Use only native tools exposed in the active session. OpenCode V2 uses `shell` for commands and `subagent` for configured child agents; V1 may expose `bash` and `task` instead. Use `skill`, `read`, and `question` only when available. Use a local checklist when no task-tracking tool is exposed. Neither runtime gains Claude's `Agent` or `subagent_type` interface from these files. A worker CLI is a separate session and must receive the relevant pstack instructions, worktree, bounded scope, and verification contract explicitly.
 
 Pi session history uses `PI_SESSION_FILE` or `PI_SESSION_ID` when available. OpenCode work uses its active session. Native workflows never search an unconditional `~/.claude` transcript path. Claude-only bundled skills without a documented native equivalent are reported as unavailable rather than invoked by a guessed command.
