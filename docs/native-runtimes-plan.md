@@ -35,7 +35,7 @@ The fork owns runtime integration. Neither Pi nor OpenCode requires global instr
 - [x] Add OpenCode installation/agent support and verify discovery.
 - [x] Prove ordinary-session isolation, Pstack model loading, resume/reload, and configuration refresh.
 - [x] Review generated changes and documentation; run all tests.
-- [ ] Push the fork; switch installed resources with backups; remove only the workaround block added in this session.
+- [x] Push the fork; switch installed resources with backups; remove only the workaround block added in this session.
 
 ## Verification gates
 
