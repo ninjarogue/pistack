@@ -1,5 +1,5 @@
-// Adapted from the user-owned pi-pstack-mode integration:
-// https://github.com/ninjarogue/pi-pstack-mode
+// Adapted for this fork from the upstream pstack workflow port:
+// https://github.com/michael-denyer/pstack-claude
 
 import { existsSync, realpathSync } from "node:fs";
 import { readFile } from "node:fs/promises";
