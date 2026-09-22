@@ -3,6 +3,10 @@ name: unslop
 description: Cut AI tells from any writing. Must always apply.
 ---
 
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
+
 # Unslop
 
 Edit text to remove AI patterns.

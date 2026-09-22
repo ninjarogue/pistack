@@ -1,10 +1,52 @@
 # pstack
 
-Lauren Tan's [pstack](https://github.com/cursor/plugins/tree/main/pstack) is an opinionated Cursor skill stack that improves agent outcomes. This is a faithful port for Claude Code, Codex and other agent harnesses.
+Run [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/main/pstack) as native skills in Pi and OpenCode. pstack is an opinionated workflow stack for concise, simple, verified agent work. This fork keeps its Claude Code and Codex compatibility while making native entrypoints first-class.
 
-Tell `poteto-mode` your goal and it will invoke the correct workflow for the task. It keeps your code concise, simple and verified.
+Tell `poteto-mode` your goal and it selects the workflow for the task.
 
-## Install
+## Pi
+
+Install this fork:
+
+```shell
+pi install git:github.com/ninjarogue/pstack-claude
+```
+
+Start with the bundled extension or invoke the skill directly:
+
+```shell
+pi --pstack
+```
+
+Inside Pi, use `/pstack`. Ordinary Pi sessions are unchanged. The bundled extension enables the shared skills on demand and keeps pstack's private model sheet out of global instructions.
+
+## OpenCode
+
+Clone the fork, then install links into an isolated OpenCode config directory:
+
+```shell
+git clone https://github.com/ninjarogue/pstack-claude.git
+cd pstack-claude
+node tools/install-opencode.mjs
+```
+
+The installer links every skill and the `pstack` primary agent. Select the `pstack` agent or invoke a pstack skill. It does not edit `AGENTS.md`, OpenCode `instructions`, model settings, auth, or other private configuration. See [native runtime setup](docs/native-runtimes.md) for custom config directories, dry runs, upgrades, and removal.
+
+## Getting started
+
+```text
+Use poteto-mode to fix the search filter resetting when I change pages.
+```
+
+For a bug, it reproduces the failure, uses `how` and `why` to investigate, delegates when the active runtime actually supports it, then reruns the failing case. If native delegation is unavailable, the workflow reports that limitation rather than inventing a subagent tool.
+
+[Other playbooks](plugins/pstack/skills/poteto-mode/SKILL.md#playbooks) cover planning, features, refactoring, performance issues, investigations, prototypes, PR maintenance, shipping, and longer projects.
+
+![A request enters poteto-mode. Playbook options include Plan, Bugs, Features, and Refactor. Planning can use architect, arena, or swarm; review and verification can use interrogate, tests, and measurements. Supporting skills include how, why, and unslop. The output is Finished work validated.](assets/pstack-overview.png)
+
+## Claude Code and Codex compatibility
+
+The existing plugin installation remains available.
 
 ### Claude Code
 
@@ -24,26 +66,15 @@ codex plugin marketplace add michael-denyer/pstack-claude
 codex plugin add pstack@pstack-claude
 ```
 
-Run `setup-pstack` to change model defaults or turn automatic routing off. The plugin installs the routing hook on Claude Code and Codex; Codex asks you to trust it through `/hooks` before it runs. In Claude Code, use `/pstack:setup-pstack`.
+Run `setup-pstack` to change model defaults or the legacy automatic routing hook. Codex asks you to trust plugin hooks through `/hooks` before one runs. In Claude Code, use `/pstack:setup-pstack`.
 
-For Prime Agent, OpenCode, Gemini CLI, or skills-only installs for any harness, see [shared installation](docs/reference.md#shared-skills-installation).
-
-## Getting started
-
-```text
-Use poteto-mode to fix the search filter resetting when I change pages.
-```
-
-For a bug, it reproduces the failure, uses `how` and `why` to investigate, delegates the fix, then reruns the failing case. If the fix crosses a function boundary, it brings in `architect` before implementation. You receive the fix and the failing and passing evidence.
-
-[Other playbooks](plugins/pstack/skills/poteto-mode/SKILL.md#playbooks) cover planning, features, refactoring, performance issues, investigations, prototypes, PR maintenance, shipping, and longer projects.
-
-![A request enters poteto-mode. Playbook options include Plan, Bugs, Features, and Refactor. Planning can use architect, arena, or swarm; review and verification can use interrogate, tests, and measurements. Supporting skills include how, why, and unslop. The output is Finished work validated.](assets/pstack-overview.png)
+For Prime Agent, Gemini CLI, or a skills-only legacy install, see [shared installation](docs/reference.md#shared-skills-installation).
 
 ## Details
 
+- [Native Pi and OpenCode setup](docs/native-runtimes.md)
 - [Skills and slash commands](docs/reference.md#slash-commands)
-- [Runtime setup](docs/reference.md#runtime-support)
+- [Legacy runtime setup](docs/reference.md#runtime-support)
 - [Models and dependencies](docs/reference.md#configuration-and-dependencies)
 - [Maintenance and port scope](docs/reference.md#maintenance)
 

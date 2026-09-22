@@ -3,6 +3,10 @@ name: architect
 description: "Sketch types, signatures, and module structure before code, then stay in the loop while implementation fills in. Use for /architect, 'architect this', 'design this', or non-trivial work where jumping to code would lock in the wrong shape."
 ---
 
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
+
 # Architect
 
 On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes, before following this skill.
@@ -89,6 +93,6 @@ The caller's usage is written first and the type sketch derived from it. One fil
 
 ## Models
 
-Role defaults, stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). A matching role line in `~/.claude/pstack-models.md` overrides each at runtime; see `/setup-pstack`.
+Role defaults, stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). These are Claude-only defaults. Pi and OpenCode must use the runtime-selected private sheet and never fall back to these slugs; see the [native runtime rules](../poteto-mode/references/runtimes.md#model-policy). A matching role line in `~/.claude/pstack-models.md` overrides each on Claude Code; see `/setup-pstack`.
 
 - architect runners: `claude-opus-5`, `claude-fable-5-1`, `claude-sonnet-5`

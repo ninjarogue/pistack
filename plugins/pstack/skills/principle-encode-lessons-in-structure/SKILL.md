@@ -4,6 +4,10 @@ description: "Apply when you catch yourself writing the same instruction a secon
 user-invocable: false
 ---
 
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
+
 # Encode Lessons in Structure
 
 Encode recurring fixes in mechanisms (tools, code, metadata, automation) instead of textual instructions. Every error, human correction, and unexpected outcome is a learning signal. Capture it, route it, and close the loop.

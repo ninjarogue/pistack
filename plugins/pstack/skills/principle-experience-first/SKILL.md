@@ -4,6 +4,10 @@ description: "Apply when product, UX, or feature-scope tradeoffs come up. Choose
 user-invocable: false
 ---
 
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
+
 # Experience First
 
 When implementation convenience conflicts with user delight, choose delight.

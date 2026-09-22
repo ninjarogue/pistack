@@ -1,49 +1,104 @@
 ---
 name: setup-pstack
-description: Configure which models pstack uses per role. Detects available models and writes the current runtime's override sheet. Use for /setup-pstack, "configure pstack models", changing pstack's model choices, or turning the SessionStart hook on or off.
+description: Configure which models pstack uses per role. Detects available models and writes the current runtime's private sheet. Use for /setup-pstack, "configure pstack models", changing pstack's model choices, or changing the legacy SessionStart hook.
 ---
+
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
 
 # Setup pstack
 
-On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes, before following this skill.
+## Pi and OpenCode
 
-On another runtime, read [Other runtimes](#other-runtimes) below for where the sheet lives and how it loads; the steps are the same.
+This is the first branch. If the current runtime is Pi or OpenCode, follow this section and stop before [Legacy Claude Code and Codex](#legacy-claude-code-and-codex). Read the [native runtime guide](../poteto-mode/references/runtimes.md) first. Detect the host from its runtime, tools, and environment, never from the model provider.
 
-Write the current runtime's per-role model override sheet, using the path in [Other runtimes](#other-runtimes). Each pstack skill names a default model inline; the override sheet adapts those defaults to the models you actually have access to.
+### 1. Inventory native models
 
-Claude Code has no auto-applied "rules" mechanism like Cursor's `.mdc`. Inclusion is explicit: the user adds a line to `~/.claude/CLAUDE.md` (or their project `CLAUDE.md`) such as:
+Run exactly the current runtime's inventory command:
 
-```text
-@~/.claude/pstack-models.md
+```shell
+pi --offline --list-models
+opencode models
 ```
 
-so the file is loaded as context for every session.
+Use the Pi command on Pi and the OpenCode command on OpenCode. If the inventory is empty or the command fails, **STOP**. Say model discovery is blocked. An existing private sheet does not prove that its IDs are still available.
 
-## Steps
+### 2. Resolve and read the native sheet
+
+Resolve only the current runtime's path:
+
+- Pi uses `${PI_CODING_AGENT_DIR}/pstack-models.md` when `PI_CODING_AGENT_DIR` is set, otherwise `~/.pi/agent/pstack-models.md`.
+- OpenCode uses `${OPENCODE_CONFIG_DIR}/pstack-models.md` when `OPENCODE_CONFIG_DIR` is set, otherwise `${XDG_CONFIG_HOME}/opencode/pstack-models.md` when `XDG_CONFIG_HOME` is set, otherwise `~/.config/opencode/pstack-models.md`.
+
+Read the existing sheet when present and preserve its valid choices. Do not read or edit the other runtime's sheet.
+
+### 3. Validate and confirm
+
+Show each current role choice and the implementation model and effort. Every real model ID must occur in the fresh inventory. Offer only listed IDs plus `inherit-parent` and `auto`. A native alias is valid only when the current inherited model is known and is in that inventory; otherwise require a listed real ID. Ask the user to confirm the complete mapping before writing.
+
+OpenCode IDs use `provider/model` and, only when listed, `provider/model#variant`. Do not invent `--variant` or a model parameter for OpenCode native tasks. Pi provider and model values must also come from its list.
+
+### 4. Write the native sheet
+
+Overwrite only the resolved `pstack-models.md`. Keep existing valid user choices; use the generic alias defaults below only for a new sheet and only after validating the inherited model. Replace `pi-or-opencode` with the detected runtime. `implementation effort` is an instruction for all code-writing work, including worker sessions.
+
+```markdown
+# pstack native model configuration
+
+runtime: pi-or-opencode
+implementation model: inherit-parent
+implementation effort: high
+feature, refactoring: inherit-parent
+bug-fix: inherit-parent
+perf-issue: inherit-parent
+hillclimb: inherit-parent
+judgment and prose: inherit-parent
+strongest judgment: inherit-parent
+how explorer: inherit-parent
+how explainer: inherit-parent
+why investigators: inherit-parent
+why synthesizer: inherit-parent
+reflect tooling: inherit-parent
+reflect judgment, divergent, synthesizer: inherit-parent
+arena runners: inherit-parent
+arena cross-judge pool: inherit-parent
+swarm workers: inherit-parent
+architect runners: inherit-parent
+interrogate reviewers: inherit-parent
+```
+
+### 5. Confirm native scope
+
+Report the path written, selected IDs, aliases, and effort. Do not edit `AGENTS.md`, `CLAUDE.md`, OpenCode `instructions`, `opencode.json`, auth files, or global hooks. The active pstack skill or OpenCode `pstack` agent reads the sheet directly. Ordinary sessions stay untouched.
+
+## Legacy Claude Code and Codex
+
+On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes. The steps below apply only to Claude Code and Codex. The SessionStart hook is legacy behavior and does not apply to Pi or OpenCode.
 
 ### 1. Detect available models
 
-Enumerate the model slugs you can pass to an `Agent` subagent in this session — that is the dependable source. The currently available Claude models and the default panel are listed in [Models](#models) below; the quad is chosen for cross-family, cross-tier diversity, and the single-role default stays out of the panels because it already covers the single-model roles. Ask the user to confirm or paste any additional slugs they want available. Never write a real slug you have not confirmed is available. The aliases `inherit-parent` and `auto` are always valid even though they are not detected slugs; both mean the role runs on the parent session's model, which the `Agent` call expresses by omitting `model`.
+Enumerate the model slugs accepted by the current legacy runtime. The Claude-only defaults are listed in [Models](#models). Ask the user to confirm additional slugs. Never write a real slug not confirmed as available. `inherit-parent` and `auto` omit the model on the legacy subagent call.
 
 ### 2. Load current state
 
-The default role-to-model mapping is the rule shape shown in the Write the override sheet step below. If the current runtime's sheet already exists, read it and treat its values as the current choices. Otherwise start from those defaults.
+Read the current runtime's sheet. Claude Code uses `~/.claude/pstack-models.md`; Codex uses `~/.codex/pstack-models.md`. Treat existing values as current choices and preserve valid choices.
 
 ### 3. Map and confirm
 
-Show every role with its current model, marking any real slug not in the detected set as needing a choice. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` as the options. Prefer `AskUserQuestion` over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena selects one value from it whose model family differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+Show every role and mark unavailable real slugs. Ask whether to retain or change each role. Panel values remain comma-separated lists. Prefer the runtime's structured question tool when one exists.
 
-### 4. Choose whether the session hook routes tasks
+### 4. Choose the legacy session hook
 
-On Claude Code and Codex, the plugin's `SessionStart` hook injects the poteto-mode mandate on startup, resume, clear, and compact. Codex asks the user to trust plugin hooks through `/hooks` before running them. Ask whether to keep the hook. The default is on. The answer is the `session hook` line in the current runtime's sheet: `on` or `off`. With no sheet or no line, the hook injects. The line is inert on other runtimes.
+Ask whether the Claude Code or Codex SessionStart hook stays on. The default is on. This setting is inert on Pi and OpenCode.
 
 ### 5. Validate
 
-Every real slug written must be in the detected set; `inherit-parent` and `auto` always pass. If a chosen real slug is not available, stop and ask again.
+Every real slug written must be in the detected set. If one is unavailable, stop and ask again.
 
 ### 6. Write the override sheet
 
-Write the current runtime's sheet with the shape below. Overwrite the whole file so re-runs stay idempotent.
+Overwrite the whole legacy sheet so reruns are idempotent.
 
 ```markdown
 # pstack model configuration
@@ -71,31 +126,17 @@ interrogate reviewers: claude-opus-5, claude-fable-5-1, claude-sonnet-5
 session hook: on
 ```
 
-### 7. Wire it in
+### 7. Wire in the legacy sheet
 
-On Claude Code, if `~/.claude/CLAUDE.md` does not already include `~/.claude/pstack-models.md`, append the `@~/.claude/pstack-models.md` line so the model rows load on every session. If the user prefers project scope, add the include to the project's `CLAUDE.md` instead.
+On Claude Code, include `@~/.claude/pstack-models.md` from the chosen `CLAUDE.md`. On Codex, paste only the model rows into the chosen `AGENTS.md`; the plugin reads the hook setting directly from `~/.codex/pstack-models.md`.
 
-On Codex, paste the model rows into `~/.codex/AGENTS.md`; Codex has no `@` include. Do not paste the `session hook` line there: the plugin hook reads it directly from `~/.codex/pstack-models.md`.
+### 8. Confirm legacy scope
 
-### 8. Confirm
-
-Tell the user where the override was written, how its model rows load, and whether the plugin hook is on. Re-running this skill updates the override sheet.
-
-## Other runtimes
-
-The role lines are the same everywhere. What differs is the sheet path, how the runtime loads it, and how you list models. Detect models with the runtime's own tool and never write a slug you have not seen listed. A runtime whose subagent call has no model parameter still gets the sheet, as the record of the user's choice, and applies it where it can. The `session hook` line applies to the Claude Code and Codex plugins.
-
-| Runtime | Sheet | Load | List models | Status |
-| --- | --- | --- | --- | --- |
-| Claude Code | `~/.claude/pstack-models.md` | `@~/.claude/pstack-models.md` in `~/.claude/CLAUDE.md` | the `Agent` tool's model parameter | verified live |
-| Codex | `~/.codex/pstack-models.md` | model rows: paste into `~/.codex/AGENTS.md`; hook setting: read by the plugin | your configured Codex models, see [codex-tools.md](../poteto-mode/references/codex-tools.md#model-names) | hook contract tested; discovery verified |
-| opencode | `~/.config/opencode/pstack-models.md` | add the path to the `instructions` array in `opencode.json` | the `models` slash command in the session | from published docs, no live session |
-| Gemini CLI | `~/.gemini/pstack-models.md` | `@~/.gemini/pstack-models.md` in `~/.gemini/GEMINI.md` | the `model` slash command in the session | from published docs, no live session |
-| Prime Agent | no documented sheet path; Prime's configuration chooses models | | | no live session |
+Report the sheet path, loading mechanism, and hook setting.
 
 ## Models
 
-Stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`).
+Claude-only defaults stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). They are not native defaults. Pi and OpenCode use the private runtime sheet described in the [native runtime rules](../poteto-mode/references/runtimes.md#model-policy).
 
 - Available Claude models: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5`)
 - Default panel: `claude-opus-5`, `claude-fable-5-1`, `claude-sonnet-5`

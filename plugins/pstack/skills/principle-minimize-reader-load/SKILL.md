@@ -4,6 +4,10 @@ description: "Apply when reviewing or shaping code that's hard to trace. Count l
 user-invocable: false
 ---
 
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
+
 # Minimize Reader Load
 
 Maintainability is the work a reader must do to understand code. Track two axes:

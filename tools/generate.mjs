@@ -9,6 +9,7 @@
 //   CHANGES.md must carry a heading for the current VERSION (release completeness)
 //   each skill's frontmatter (name + description) defines the shared Agent
 //   Skills boundary consumed natively by Codex, Prime, opencode, and Gemini CLI
+//     -> every SKILL.md gets the native-runtime bootstrap immediately after frontmatter
 //   docs/reference.md's "Slash commands" table (one row per public skill, in editorial
 //   order; the row text is the Codex slash-menu one-liner)
 //     -> its Codex prompt stub in plugins/pstack/.codex-plugin/prompts/
@@ -348,6 +349,20 @@ const blankPadded = (body) => ["", ...body.split("\n"), ""];
 // Every generator-owned region: the file it lives in (repo-relative), how to
 // find it, and what it renders from the model policy. Adding a stamped region
 // means adding a row here; the stray-slug scan exempts exactly these spans.
+export const NATIVE_BOOTSTRAP = `<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->`;
+
+// Keep the bootstrap in one deterministic location. Markers let the generator
+// update its wording without accumulating old copies.
+export function applyNativeBootstrap(text) {
+  const marked = /<!-- pstack-runtime-bootstrap:start -->[\s\S]*?<!-- pstack-runtime-bootstrap:end -->/;
+  if (marked.test(text)) return text.replace(marked, NATIVE_BOOTSTRAP);
+  const frontmatter = text.match(/^---\n[\s\S]*?\n---\n/);
+  if (!frontmatter) throw new Error("SKILL.md has no frontmatter for the runtime bootstrap");
+  return text.slice(0, frontmatter[0].length) + `\n${NATIVE_BOOTSTRAP}\n` + text.slice(frontmatter[0].length);
+}
+
 export function regions(models) {
   const skillFile = (skill) => `plugins/pstack/skills/${skill}/SKILL.md`;
   const rolesBySkill = new Map();
@@ -377,6 +392,12 @@ export function regions(models) {
       name: "Models section",
       locate: section("Models"),
       render: () => blankPadded(setupModelsSection(models)),
+    },
+    {
+      file: skillFile("setup-pstack"),
+      name: "native override sheet",
+      locate: fenceUnder("Write the native sheet", "markdown"),
+      render: () => [nativeOverrideSheetBlock(models)],
     },
     {
       file: skillFile("setup-pstack"),
@@ -437,6 +458,9 @@ export function deriveSkill(file, text, models = loadModels()) {
   if (skill) {
     const swap = skill.startsWith("principle-") ? "\nuser-invocable: false\n" : "\n";
     out = out.replace("\ndisable-model-invocation: true\n", swap);
+    // Upstream fixtures in older tests use a placeholder frontmatter name.
+    // Real entrypoints always match their directory and receive the bootstrap.
+    if (frontmatterValue(out, "name") === skill) out = applyNativeBootstrap(out);
   }
   const lines = out.split("\n");
   for (const region of regions(models).filter((r) => r.file === file && r.appendHeading)) {
@@ -451,7 +475,9 @@ export function modelsSection(roles) {
   const bullets = roles.map((r) => `- ${r.role}: ${codeList(r.models)}`).join("\n");
   return (
     "Role defaults, stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). " +
-    "A matching role line in `~/.claude/pstack-models.md` overrides each at runtime; see `/setup-pstack`.\n\n" +
+    "These are Claude-only defaults. Pi and OpenCode must use the runtime-selected private sheet and never fall back to these slugs; see the " +
+    "[native runtime rules](../poteto-mode/references/runtimes.md#model-policy). A matching role line in " +
+    "`~/.claude/pstack-models.md` overrides each on Claude Code; see `/setup-pstack`.\n\n" +
     bullets
   );
 }
@@ -459,15 +485,31 @@ export function modelsSection(roles) {
 export function setupModelsSection(models) {
   const avail = models.available.map((m) => `${m.label} (${code(m.slug)})`).join(", ");
   return (
-    "Stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`).\n\n" +
+    "Claude-only defaults stamped from `plugins/pstack/models.json` (edit there, rerun `tools/generate.mjs`). " +
+    "They are not native defaults. Pi and OpenCode use the private runtime sheet described in the " +
+    "[native runtime rules](../poteto-mode/references/runtimes.md#model-policy).\n\n" +
     `- Available Claude models: ${avail}\n` +
     `- Default panel: ${codeList(models.panel)}\n` +
     `- Single-role default: ${code(models.singleRoleDefault)}`
   );
 }
 
-// The override sheet the setup skill writes for users. The preamble is fixed;
-// the role rows come from models.json.
+// Native sheets deliberately contain aliases rather than public provider/model
+// choices. Setup validates the inherited model against the runtime inventory
+// before retaining an alias.
+export function nativeOverrideSheetBlock(models) {
+  const rows = models.roles.map((r) => `${r.role}: inherit-parent`).join("\n");
+  return (
+    "# pstack native model configuration\n\n" +
+    "runtime: pi-or-opencode\n" +
+    "implementation model: inherit-parent\n" +
+    "implementation effort: high\n" +
+    rows
+  );
+}
+
+// The legacy override sheet the setup skill writes for users. The preamble is
+// fixed; the role rows come from models.json.
 export function overrideSheetBlock(models) {
   const rows = models.roles.map((r) => `${r.role}: ${r.models.join(", ")}`).join("\n");
   return (
@@ -572,6 +614,15 @@ function main() {
 
   const models = loadModels();
   const skillsDir = join(repo, "plugins/pstack/skills");
+
+  let bootstraps = 0;
+  for (const skill of agentSkills(skillsDir)) {
+    const file = join(skillsDir, skill.name, "SKILL.md");
+    if (stampFile(file, applyNativeBootstrap(readFileSync(file, "utf8")), `skills/${skill.name}/SKILL.md (runtime)`)) {
+      bootstraps++;
+    }
+  }
+  if (bootstraps === 0) console.log("ok: native-runtime bootstraps current");
 
   let modelStamps = 0;
   for (const file of new Set(regions(models).map((r) => r.file))) {

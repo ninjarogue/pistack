@@ -3,6 +3,10 @@ name: interrogate
 description: "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Multiple LLM reviewers challenge changes from independent angles."
 ---
 
+<!-- pstack-runtime-bootstrap:start -->
+> **Runtime bootstrap.** Before following this skill, read the [runtime guide](../poteto-mode/references/runtimes.md). Its Pi and OpenCode rules for tools, models, delegation, configuration, and session history take precedence over legacy Claude or Codex instructions below.
+<!-- pstack-runtime-bootstrap:end -->
+
 # Interrogate
 
 On Codex, read the [platform mapping](../poteto-mode/references/codex-tools.md), including its per-skill notes, before following this skill.
@@ -34,7 +38,7 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message using the `Agent` tool. Use the `interrogate reviewers` list from `~/.claude/pstack-models.md` when present, one reviewer per entry, extending or shrinking the Reviewer A/B/C/D labels below to the configured entry count; otherwise use the table defaults.
+Use the current runtime's documented delegation only when exposed. Use the `interrogate reviewers` list from the runtime-selected private model sheet when present, one reviewer per entry, extending or shrinking the Reviewer A/B/C/D labels below to the configured entry count. On native runtimes, an absent role is unconfigured and the Claude-only table is not a fallback. On legacy runtimes, launch all reviewers in one message using the `Agent` tool and use the table defaults when no role is configured.
 
 | Subagent | Default model |
 |----------|---------------|
